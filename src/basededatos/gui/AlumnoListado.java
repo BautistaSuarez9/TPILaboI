@@ -89,7 +89,7 @@ public class AlumnoListado extends JFrame {
     private void cargarAlumnos() {
         modelo.setRowCount(0);
         try {
-            ArrayList<Alumno> alumnos = servicio.obtenerTodos();
+            ArrayList<Alumno> alumnos = new ArrayList<>(servicio.obtenerTodos());
             for (Alumno a : alumnos) {
                 modelo.addRow(new Object[]{
                         a.getId(), a.getNombre(), a.getEmail(), a.getLimiteCursos()

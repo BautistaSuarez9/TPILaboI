@@ -44,7 +44,7 @@ public class VentanaProfesor extends JFrame {
                 new String[]{"ID", "Nombre", "Cupo", "Precio", "Nota Aprobación"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == COL_NOMBRE;  // Solo se edita el nombre
+                return column == COL_NOMBRE;
             }
         };
 

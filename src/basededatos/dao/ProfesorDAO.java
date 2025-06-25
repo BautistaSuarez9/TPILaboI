@@ -1,23 +1,23 @@
 package basededatos.dao;
 
 import basededatos.conexion.Conexion;
-import basededatos.entidad.Alumno;
+import basededatos.entidad.Profesor;
 
 import java.sql.*;
 import java.util.ArrayList;
 
-public class AlumnoDAO implements IDAO<Alumno> {
+public class ProfesorDAO implements IDAO<Profesor> {
 
-    public AlumnoDAO() {
+    public ProfesorDAO() throws DAOException {
+        crearTablaSiNoExiste();
     }
 
-    public void crearTablaSiNoExiste() throws DAOException {
+    private void crearTablaSiNoExiste() throws DAOException {
         String sql = """
-            CREATE TABLE IF NOT EXISTS alumnos (
+            CREATE TABLE IF NOT EXISTS profesores (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 nombre VARCHAR(100) NOT NULL,
-                email VARCHAR(100) NOT NULL,
-                limite_cursos INT NOT NULL
+                email VARCHAR(100) NOT NULL
             )
         """;
 
@@ -25,48 +25,46 @@ public class AlumnoDAO implements IDAO<Alumno> {
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
-            throw new DAOException("Error al crear la tabla alumnos", e);
+            throw new DAOException("Error al crear la tabla profesores", e);
         }
     }
 
     @Override
-    public void guardar(Alumno alumno) throws DAOException {
-        String sql = "INSERT INTO alumnos (nombre, email, limite_cursos) VALUES (?, ?, ?)";
+    public void guardar(Profesor profesor) throws DAOException {
+        String sql = "INSERT INTO profesores (nombre, email) VALUES (?, ?)";
 
         try (Connection conn = Conexion.getConexion();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, alumno.getNombre());
-            stmt.setString(2, alumno.getEmail());
-            stmt.setInt(3, alumno.getLimiteCursos());
+            stmt.setString(1, profesor.getNombre());
+            stmt.setString(2, profesor.getEmail());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new DAOException("Error al guardar alumno", e);
+            throw new DAOException("Error al guardar profesor", e);
         }
     }
 
     @Override
-    public void modificar(Alumno alumno) throws DAOException {
-        String sql = "UPDATE alumnos SET nombre = ?, email = ?, limite_cursos = ? WHERE id = ?";
+    public void modificar(Profesor profesor) throws DAOException {
+        String sql = "UPDATE profesores SET nombre = ?, email = ? WHERE id = ?";
 
         try (Connection conn = Conexion.getConexion();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, alumno.getNombre());
-            stmt.setString(2, alumno.getEmail());
-            stmt.setInt(3, alumno.getLimiteCursos());
-            stmt.setInt(4, alumno.getId());
+            stmt.setString(1, profesor.getNombre());
+            stmt.setString(2, profesor.getEmail());
+            stmt.setInt(3, profesor.getId());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new DAOException("Error al modificar alumno", e);
+            throw new DAOException("Error al modificar profesor", e);
         }
     }
 
     @Override
     public void eliminar(int id) throws DAOException {
-        String sql = "DELETE FROM alumnos WHERE id = ?";
+        String sql = "DELETE FROM profesores WHERE id = ?";
 
         try (Connection conn = Conexion.getConexion();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -75,13 +73,13 @@ public class AlumnoDAO implements IDAO<Alumno> {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new DAOException("Error al eliminar alumno", e);
+            throw new DAOException("Error al eliminar profesor", e);
         }
     }
 
     @Override
-    public Alumno buscar(int id) throws DAOException {
-        String sql = "SELECT * FROM alumnos WHERE id = ?";
+    public Profesor buscar(int id) throws DAOException {
+        String sql = "SELECT * FROM profesores WHERE id = ?";
 
         try (Connection conn = Conexion.getConexion();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -90,42 +88,40 @@ public class AlumnoDAO implements IDAO<Alumno> {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new Alumno(
+                return new Profesor(
                         rs.getInt("id"),
                         rs.getString("nombre"),
-                        rs.getString("email"),
-                        rs.getInt("limite_cursos")
+                        rs.getString("email")
                 );
+            } else {
+                return null;
             }
 
-            return null;
-
         } catch (SQLException e) {
-            throw new DAOException("Error al buscar alumno", e);
+            throw new DAOException("Error al buscar profesor", e);
         }
     }
 
     @Override
-    public ArrayList<Alumno> buscarTodos() throws DAOException {
-        ArrayList<Alumno> lista = new ArrayList<>();
-        String sql = "SELECT * FROM alumnos";
+    public ArrayList<Profesor> buscarTodos() throws DAOException {
+        ArrayList<Profesor> lista = new ArrayList<>();
+        String sql = "SELECT * FROM profesores";
 
         try (Connection conn = Conexion.getConexion();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                Alumno alumno = new Alumno(
+                Profesor profesor = new Profesor(
                         rs.getInt("id"),
                         rs.getString("nombre"),
-                        rs.getString("email"),
-                        rs.getInt("limite_cursos")
+                        rs.getString("email")
                 );
-                lista.add(alumno);
+                lista.add(profesor);
             }
 
         } catch (SQLException e) {
-            throw new DAOException("Error al buscar todos los alumnos", e);
+            throw new DAOException("Error al listar profesores", e);
         }
 
         return lista;

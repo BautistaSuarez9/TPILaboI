@@ -1,8 +1,10 @@
 package basededatos.servicios;
 
+import basededatos.dao.AlumnoDAO;
 import basededatos.dao.CursoDAO;
 import basededatos.dao.DAOException;
 import basededatos.dao.InscripcionDAO;
+import basededatos.entidad.Alumno;
 import basededatos.entidad.Curso;
 import basededatos.entidad.Inscripcion;
 
@@ -77,18 +79,24 @@ public class CursoService {
             ArrayList<Inscripcion> inscripciones = inscDao.buscarTodos();
 
             for (Inscripcion i : inscripciones) {
-                if (i.getAlumnoId() == idAlumno && i.getCursoId() == idCurso) {
+                if (i.getAlumno().getId() == idAlumno && i.getCurso().getId() == idCurso) {
                     throw new ServiceException("Ya está inscrito en este curso.");
                 }
             }
 
             long activas = inscripciones.stream()
-                    .filter(i -> i.getAlumnoId() == idAlumno && "pendiente".equalsIgnoreCase(i.getEstado()))
+                    .filter(i -> i.getAlumno().getId() == idAlumno &&
+                            (i.getEstado().equalsIgnoreCase("pendiente") || i.getEstado().equalsIgnoreCase("inscripto")))
                     .count();
 
-            if (activas >= 3) {
-                throw new ServiceException("Ya está inscrito en 3 cursos activos.");
+
+            AlumnoDAO alumnoDAO = new AlumnoDAO();
+            Alumno alumno = alumnoDAO.buscar(idAlumno);
+
+            if (activas >= alumno.getLimiteCursos()) {
+                throw new ServiceException("El alumno ya está inscrito en el máximo de cursos permitidos (" + alumno.getLimiteCursos() + ").");
             }
+
 
             inscDao.inscribir(idAlumno, idCurso);
 
@@ -97,8 +105,7 @@ public class CursoService {
         }
     }
 
-
-    public void validarCurso(Curso curso) throws ServiceException {
+    private void validarCurso(Curso curso) throws ServiceException {
         if (curso.getNombre() == null || curso.getNombre().trim().isEmpty()) {
             throw new ServiceException("El nombre del curso no puede estar vacío.");
         }
@@ -110,6 +117,9 @@ public class CursoService {
         }
         if (curso.getNotaAprobacion() < 1 || curso.getNotaAprobacion() > 10) {
             throw new ServiceException("La nota de aprobación debe estar entre 1 y 10.");
+        }
+        if (curso.getProfesor() == null) {
+            throw new ServiceException("Debe asignarse un profesor al curso.");
         }
     }
 }

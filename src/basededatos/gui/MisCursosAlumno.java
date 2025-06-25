@@ -2,6 +2,7 @@ package basededatos.gui;
 
 import basededatos.entidad.Curso;
 import basededatos.entidad.Inscripcion;
+import basededatos.entidad.Alumno;
 import basededatos.servicios.CursoService;
 import basededatos.servicios.InscripcionService;
 import basededatos.servicios.ServiceException;
@@ -9,23 +10,21 @@ import basededatos.servicios.ServiceException;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.List;
 
 public class MisCursosAlumno extends JFrame {
     private JTable tabla;
     private DefaultTableModel modelo;
     private JButton botonVolver;
-    private int idAlumno;
+    private final int idAlumno;
 
     private InscripcionService inscripcionService;
-    private CursoService cursoService;
 
     public MisCursosAlumno(int idAlumno) {
         this.idAlumno = idAlumno;
 
         try {
             inscripcionService = new InscripcionService();
-            cursoService = new CursoService();
         } catch (ServiceException e) {
             JOptionPane.showMessageDialog(this, "Error en servicios: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -41,7 +40,7 @@ public class MisCursosAlumno extends JFrame {
     }
 
     private void inicializarComponentes() {
-        modelo = new DefaultTableModel(new String[]{"Curso", "Estado", "Nota Final"}, 0) {
+        modelo = new DefaultTableModel(new String[]{"Curso", "Profesor", "Estado", "Nota Final"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -66,16 +65,18 @@ public class MisCursosAlumno extends JFrame {
 
     private void cargarMisCursos() {
         try {
-            ArrayList<Inscripcion> inscripciones = inscripcionService.obtenerTodas();
+            List<Inscripcion> inscripciones = inscripcionService.obtenerTodas();
             modelo.setRowCount(0);
 
             for (Inscripcion ins : inscripciones) {
-                if (ins.getAlumnoId() == idAlumno) {
-                    Curso curso = cursoService.buscarPorId(ins.getCursoId());
-                    String nombreCurso = (curso != null) ? curso.getNombre() : "Curso no encontrado";
+                if (ins.getAlumno().getId() == idAlumno) {
+                    Curso curso = ins.getCurso();
+                    String nombreCurso = curso.getNombre();
+                    String nombreProfesor = (curso.getProfesor() != null) ? curso.getProfesor().getNombre() : "No asignado";
                     String estado = ins.getEstado();
                     String nota = (ins.getNotaFinal() != null) ? String.valueOf(ins.getNotaFinal()) : "-";
-                    modelo.addRow(new Object[]{nombreCurso, estado, nota});
+
+                    modelo.addRow(new Object[]{nombreCurso, nombreProfesor, estado, nota});
                 }
             }
 

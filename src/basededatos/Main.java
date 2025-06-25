@@ -9,7 +9,7 @@ import javax.swing.*;
 public class Main {
     public static void main(String[] args) {
         try {
-            DBInitService.inicializarBaseDeDatos(); // Se asegura de que existan las tablas
+            DBInitService.inicializarBaseDeDatos();
         } catch (ServiceException e) {
             JOptionPane.showMessageDialog(null,
                     "Error al inicializar la base de datos:\n" + e.getMessage(),

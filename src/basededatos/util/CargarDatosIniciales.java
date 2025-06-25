@@ -9,9 +9,9 @@ public class CargarDatosIniciales {
         try {
             UsuarioService servicio = new UsuarioService();
 
-            Usuario admin = new Usuario("admin", "admin123", "admin", null);
-            Usuario alumno = new Usuario("alumno", "alumno123", "alumno", null);
-            Usuario profesor = new Usuario("profesor", "profesor123", "profesor", null);
+            Usuario admin = new Usuario(0,"admin", "admin123", "admin", null);
+            Usuario alumno = new Usuario(0,"alumno", "alumno123", "alumno", null);
+            Usuario profesor = new Usuario(0,"profesor", "profesor123", "profesor", null);
 
             servicio.registrarUsuario(admin);
             servicio.registrarUsuario(alumno);

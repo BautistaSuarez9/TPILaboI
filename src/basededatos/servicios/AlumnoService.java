@@ -5,6 +5,7 @@ import basededatos.dao.DAOException;
 import basededatos.entidad.Alumno;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AlumnoService {
     private final AlumnoDAO dao;
@@ -13,7 +14,10 @@ public class AlumnoService {
         this.dao = new AlumnoDAO();
     }
 
-    private void validarAlumno(Alumno alumno) throws ServiceException {
+    private void validar(Alumno alumno) throws ServiceException {
+        if (alumno == null) {
+            throw new ServiceException("El objeto Alumno no puede ser nulo.");
+        }
         if (alumno.getNombre() == null || alumno.getNombre().trim().isEmpty()) {
             throw new ServiceException("El nombre no puede estar vacío.");
         }
@@ -25,39 +29,41 @@ public class AlumnoService {
         }
     }
 
-
-
     public Alumno buscarPorId(int id) throws ServiceException {
         try {
-            return dao.buscar(id);
+            Alumno alumno = dao.buscar(id);
+            if (alumno == null) {
+                throw new ServiceException("No se encontró un alumno con ID " + id);
+            }
+            return alumno;
         } catch (DAOException e) {
-            throw new ServiceException("No se pudo buscar el alumno con ID " + id, e);
+            throw new ServiceException("Error al buscar alumno con ID " + id, e);
         }
     }
 
-    public ArrayList<Alumno> obtenerTodos() throws ServiceException {
+    public List<Alumno> obtenerTodos() throws ServiceException {
         try {
             return dao.buscarTodos();
         } catch (DAOException e) {
-            throw new ServiceException("No se pudo obtener la lista de alumnos", e);
+            throw new ServiceException("Error al obtener la lista de alumnos", e);
         }
     }
 
     public void guardarAlumno(Alumno alumno) throws ServiceException {
-        validarAlumno(alumno);
+        validar(alumno);
         try {
             dao.guardar(alumno);
         } catch (DAOException e) {
-            throw new ServiceException("No se pudo guardar el alumno", e);
+            throw new ServiceException("Error al guardar el alumno", e);
         }
     }
 
     public void modificarAlumno(Alumno alumno) throws ServiceException {
-        validarAlumno(alumno);
+        validar(alumno);
         try {
             dao.modificar(alumno);
         } catch (DAOException e) {
-            throw new ServiceException("No se pudo modificar el alumno", e);
+            throw new ServiceException("Error al modificar el alumno", e);
         }
     }
 
@@ -65,7 +71,7 @@ public class AlumnoService {
         try {
             dao.eliminar(id);
         } catch (DAOException e) {
-            throw new ServiceException("No se pudo eliminar el alumno con ID " + id, e);
+            throw new ServiceException("Error al eliminar el alumno con ID " + id, e);
         }
     }
 }

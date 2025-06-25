@@ -3,7 +3,6 @@ package basededatos.gui;
 import basededatos.entidad.Alumno;
 import basededatos.entidad.Curso;
 import basededatos.entidad.Inscripcion;
-import basededatos.servicios.AlumnoService;
 import basededatos.servicios.CursoService;
 import basededatos.servicios.InscripcionService;
 import basededatos.servicios.ServiceException;
@@ -11,16 +10,15 @@ import basededatos.servicios.ServiceException;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.List;
 
 public class GestionAlumnosCurso extends JFrame {
     private JTable tabla;
     private DefaultTableModel modelo;
     private JButton botonGuardar, botonVolver;
-    private int cursoId;
+    private final int cursoId;
     private Curso curso;
 
-    private AlumnoService alumnoService;
     private InscripcionService inscripcionService;
     private CursoService cursoService;
 
@@ -28,7 +26,6 @@ public class GestionAlumnosCurso extends JFrame {
         this.cursoId = cursoId;
 
         try {
-            alumnoService = new AlumnoService();
             inscripcionService = new InscripcionService();
             cursoService = new CursoService();
             this.curso = cursoService.buscarPorId(cursoId);
@@ -50,7 +47,7 @@ public class GestionAlumnosCurso extends JFrame {
         modelo = new DefaultTableModel(new String[]{"ID Alumno", "Nombre", "Email", "Nota Final", "Estado"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 3;
+                return column == 3; // Solo la nota es editable
             }
 
             @Override
@@ -81,21 +78,19 @@ public class GestionAlumnosCurso extends JFrame {
 
     private void cargarInscriptos() {
         try {
-            ArrayList<Inscripcion> inscripciones = inscripcionService.obtenerTodas();
+            List<Inscripcion> inscripciones = inscripcionService.obtenerTodas();
             modelo.setRowCount(0);
 
             for (Inscripcion ins : inscripciones) {
-                if (ins.getCursoId() == cursoId) {
-                    Alumno alumno = alumnoService.buscarPorId(ins.getAlumnoId());
-                    if (alumno != null) {
-                        modelo.addRow(new Object[]{
-                                alumno.getId(),
-                                alumno.getNombre(),
-                                alumno.getEmail(),
-                                ins.getNotaFinal() != null ? ins.getNotaFinal() : null,
-                                ins.getEstado()
-                        });
-                    }
+                if (ins.getCurso().getId() == cursoId) {
+                    Alumno alumno = ins.getAlumno();
+                    modelo.addRow(new Object[]{
+                            alumno.getId(),
+                            alumno.getNombre(),
+                            alumno.getEmail(),
+                            ins.getNotaFinal(),
+                            ins.getEstado()
+                    });
                 }
             }
         } catch (ServiceException e) {
@@ -112,13 +107,13 @@ public class GestionAlumnosCurso extends JFrame {
                 if (notaObj == null) continue;
 
                 int nota = ((Number) notaObj).intValue();
-                inscripcionService.actualizarNotaYDeterminarEstado(idAlumno, cursoId, nota);
-
+                Alumno alumno = new Alumno();
+                alumno.setId(idAlumno);
+                inscripcionService.actualizarNotaYDeterminarEstado(alumno, curso, nota);
             }
 
             JOptionPane.showMessageDialog(this, "Notas guardadas y estados actualizados.");
             cargarInscriptos();
-
         } catch (ServiceException e) {
             JOptionPane.showMessageDialog(this, "Error al guardar: " + e.getMessage());
         }

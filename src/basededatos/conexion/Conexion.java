@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Conexion {
-    private static final String URL = "jdbc:h2:./basedatos/alumnos";
+    private static final String URL = "jdbc:h2:C:/Users/bauti/Documents/Facultad/labo I/TPI/TPILaboI/basedatos/alumnos";
     private static final String USER = "sa";
     private static final String PASSWORD = "";
 
