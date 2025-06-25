@@ -122,4 +122,13 @@ public class CursoService {
             throw new ServiceException("Debe asignarse un profesor al curso.");
         }
     }
+
+    public ArrayList<Object[]> generarReporteCursos() throws ServiceException {
+        try {
+            return dao.obtenerReporteCursos();
+        } catch (DAOException e) {
+            throw new ServiceException("No se pudo generar el reporte de cursos", e);
+        }
+    }
+
 }

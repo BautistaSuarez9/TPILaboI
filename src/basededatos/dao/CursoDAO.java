@@ -175,4 +175,40 @@ public class CursoDAO implements IDAO<Curso> {
         }
         return 0;
     }
+
+    public ArrayList<Object[]> obtenerReporteCursos() throws DAOException {
+        String sql = """
+        SELECT 
+            c.nombre,
+            COUNT(i.id) AS inscriptos,
+            c.precio,
+            COUNT(i.id) * c.precio AS recaudacion
+        FROM cursos c
+        LEFT JOIN inscripciones i ON c.id = i.curso_id
+        GROUP BY c.id, c.nombre, c.precio
+        ORDER BY c.nombre
+    """;
+
+        ArrayList<Object[]> reporte = new ArrayList<>();
+
+        try (Connection conn = Conexion.getConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                String nombreCurso = rs.getString("nombre");
+                int inscriptos = rs.getInt("inscriptos");
+                double precio = rs.getDouble("precio");
+                double recaudacion = rs.getDouble("recaudacion");
+
+                reporte.add(new Object[]{nombreCurso, inscriptos, precio, recaudacion});
+            }
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al obtener el reporte de cursos", e);
+        }
+
+        return reporte;
+    }
+
 }

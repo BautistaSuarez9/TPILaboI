@@ -21,7 +21,7 @@ public class VentanaAdministrador extends JFrame {
     }
 
     private void inicializarComponentes() {
-        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(7, 1, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         botonFormulario = new JButton("Agregar Alumno");
@@ -30,6 +30,13 @@ public class VentanaAdministrador extends JFrame {
         botonCursos = new JButton("Crear Curso");
         botonCursosForm = new JButton("Ver/Editas Cursos");
 
+        JButton botonReporte = new JButton("Reporte de Recaudación");
+        botonReporte.addActionListener(e -> {
+            new ReporteCursos().setVisible(true);
+            this.dispose();
+        });
+
+
 
 
         panel.add(new JLabel("Administrador - Acciones", SwingConstants.CENTER));
@@ -37,6 +44,7 @@ public class VentanaAdministrador extends JFrame {
         panel.add(botonListado);
         panel.add(botonCursos);
         panel.add(botonCursosForm);
+        panel.add(botonReporte);
         panel.add(botonVolver);
 
 
